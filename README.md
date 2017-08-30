@@ -1,9 +1,10 @@
 # As Fast As Possible Csv Parsing
-Trying to parse reasonably large CSV files in C++ as fast as I can
-the file is a weeks worth of forex tick data with about 660k rows 
-we're reading in the data and parsing out the date/time and bid price
+Trying to parse reasonably large CSV files in C++ as fast as I can.
 
-the following measurements are taken from visual studio debug mode which displays the time in ms between breakpoints
+The test file is a weeks worth of forex tick data with about 660k rows. 
+We're reading in the data and parsing out the date/time and bid price.
+
+The following measurements are taken from visual studio debug mode which displays the time in ms between breakpoints
 so relatively rudimentary measurements. 
 
 my machine has the following specs: i7-7700k, 32GB
