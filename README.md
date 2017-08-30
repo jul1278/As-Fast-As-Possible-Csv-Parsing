@@ -15,6 +15,6 @@ however a reasonable amount of that is possibly string::find() string::replace()
 reading by block from a stream we get down to about 2.5 seconds and we're not constructing any std::strings etc
 just using char array
 
-up next is to try mmap and whatever the windows equivalent is for memory mapped files
+up next is to try ```mmap``` and whatever the windows equivalent is for memory mapped files
 
 and also asynchronous reading/processing
