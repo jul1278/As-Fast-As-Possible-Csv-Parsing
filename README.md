@@ -7,7 +7,7 @@ We're reading in the data and parsing out the date/time and bid price.
 The following measurements are taken from visual studio debug mode which displays the time in ms between breakpoints
 so relatively rudimentary measurements. 
 
-my machine has the following specs: i7-7700k, 32GB
+my machine has the following specs: i7-7700k @ 4.2GHz, 32GB RAM @ 1064MHz
 
 reading line by line from fstream we get about 25 seconds, 
 however a reasonable amount of that is possibly string::find() string::replace() 
