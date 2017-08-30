@@ -10,6 +10,8 @@
 #include <time.h>
 #include <algorithm>
 
+std::string filepath = "EUR_JPY_Week2.csv";
+
 struct DateTimePricePair {
 	unsigned int year;
 	unsigned int month;
@@ -22,16 +24,28 @@ struct DateTimePricePair {
 	unsigned int quote; 
 };
 
+
+std::vector<DateTimePricePair> dateTimePricePairs;
+
+unsigned int numHeaders = 6;
+const unsigned int bufferSize = 8 * 2048;
+
+
 //----------------------------------------------------------------------------------------------------------
 // Name: StreamReadLineByLine
 // Desc:
 //----------------------------------------------------------------------------------------------------------
 void StreamReadLineByLine()
 {
-	std::string filepath = "C:\\Julian\\Prices\\2015\\USD_JPY\\January\\USD_JPY_Week1.csv";
 	std::ifstream filestream(filepath);
 
-	std::vector<DateTimePricePair> dateTimePricePairs;
+	if (!filestream.is_open()) {
+
+		std::cout << "Error opening file.";
+		return;
+	}
+
+	dateTimePricePairs.clear();
 
 	while (filestream) {
 
@@ -93,19 +107,21 @@ void StreamReadLineByLine()
 // Desc:
 //----------------------------------------------------------------------------------------------------------
 void StreamReadBlock() {
-	std::string filepath = "C:\\Julian\\Prices\\2015\\USD_JPY\\January\\USD_JPY_Week1.csv";
+
 	std::ifstream filestream(filepath);
 
-	std::vector<DateTimePricePair> dateTimePricePairs;
+	if (!filestream.is_open()) {
+		
+		std::cout << "Error opening file."; 
+		return;
+	}
 
-	unsigned int numHeaders = 6; 
-
-	const unsigned int bufferSize = 8*2048;
+	dateTimePricePairs.clear(); 
 
 	char buffer[bufferSize];
 	memset(buffer, 0, sizeof(buffer));
 
-	// find offset
+	// We want to ignore the headers so discard characters until the first newline
 	unsigned int offset = 0;
 	while (filestream.get() != '\n') {
 		offset++;
@@ -201,11 +217,22 @@ void StreamReadBlock() {
 	filestream.close();
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+// Name: main
+// Desc:
+//---------------------------------------------------------------------------------------------------------------------
 int main(int argc, char** argv) {
 
-	//StreamReadLineByLine(); // 17 seconds roughly and about 10 megabytes
+	if (argc < 2) {
+		std::cout << "First argument must be path to test file.\n";
+		return 0;
+	}
 
-	StreamReadBlock(); // 2.76 seconds
+	filepath = argv[1]; 
+
+	StreamReadLineByLine(); // 25.6 seconds roughly and about 16 megabytes in vstudio debugger
+
+	StreamReadBlock(); // 2.4 seconds in visual studio debugger
 
 	return 0;
 
