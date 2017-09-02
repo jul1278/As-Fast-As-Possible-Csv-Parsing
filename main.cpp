@@ -5,20 +5,19 @@
 #include <vector>
 #include <string>
 #include <vector>
-#include <stdio.h>
-#include <locale.h>
-#include <time.h>
+#include <chrono>
+#include <ctime>
 #include <algorithm>
 
 std::string filepath = "EUR_JPY_Week2.csv";
 
 struct DateTimePricePair {
-	unsigned int year;
-	unsigned int month;
-	unsigned int day;
-	unsigned int hour;
-	unsigned int minute;
-	unsigned int second;
+	unsigned short year;
+	uint8_t month;
+	uint8_t day;
+	uint8_t hour;
+	uint8_t minute;
+	uint8_t second;
 	unsigned int millisec;
 
 	unsigned int quote; 
@@ -73,9 +72,11 @@ void StreamReadLineByLine()
 				unsigned int minute;
 				unsigned int second;
 				unsigned int millisec;
-
+#ifdef __WIN32
 				sscanf_s(cell.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec);
-
+#else
+				sscanf(cell.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec);
+#endif
 				dateTimePricePair.year = year;
 				dateTimePricePair.month = month;
 				dateTimePricePair.day = day;
@@ -156,8 +157,11 @@ void StreamReadBlock() {
 					unsigned int millisec;
 
 					// datetime
+#ifdef __WIN32
 					sscanf_s(&buffer[lastCommaIndex], "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec); 
-
+#else
+					sscanf(&buffer[lastCommaIndex], "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec); 
+#endif
 					dateTimePricePair.year = year;
 					dateTimePricePair.month = month;
 					dateTimePricePair.day = day;
@@ -230,10 +234,24 @@ int main(int argc, char** argv) {
 
 	filepath = argv[1]; 
 
-	StreamReadLineByLine(); // 25.6 seconds roughly and about 16 megabytes in vstudio debugger
+	std::cout << filepath << std::endl; 
 
+	std::chrono::time_point<std::chrono::system_clock> start; 
+	std::chrono::time_point<std::chrono::system_clock> end;
+
+	start = std::chrono::system_clock::now();
+	StreamReadLineByLine(); // 25.6 seconds roughly and about 16 megabytes in vstudio debugger
+	end = std::chrono::system_clock::now();
+
+	std::chrono::duration<double> elapsedSeconds = end - start; 
+	std::cout << "Line by line stream: " << elapsedSeconds.count() << std::endl; 
+
+	start = std::chrono::system_clock::now();
 	StreamReadBlock(); // 2.4 seconds in visual studio debugger
+	end = std::chrono::system_clock::now();
+
+	elapsedSeconds = end - start; 
+	std::cout << "Read Block: " << elapsedSeconds.count() << std::endl; 
 
 	return 0;
-
 }
