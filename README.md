@@ -5,7 +5,7 @@ The test file is a weeks worth of forex tick data with about 660k rows.
 We're reading in the data and parsing out the date/time and bid price.
 
 The following measurements are taken from visual studio debug mode which displays the time in ms between breakpoints
-so relatively rudimentary measurements. 
+so relatively rudimentary measurements, obviously it's a lot faster when built with g++. 
 
 my machine has the following specs: i7-7700k @ 4.2GHz, 32GB RAM @ 1064MHz
 
