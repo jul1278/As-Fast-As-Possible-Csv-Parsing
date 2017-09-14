@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <chrono>
 #include <ctime>
@@ -21,6 +22,10 @@ struct DateTimePricePair {
 	unsigned int millisec;
 
 	unsigned int quote; 
+
+	DateTimePricePair() {
+		memset(this, 0, sizeof(DateTimePricePair)); 
+	}
 };
 
 
@@ -29,6 +34,47 @@ std::vector<DateTimePricePair> dateTimePricePairs;
 unsigned int numHeaders = 6;
 const unsigned int bufferSize = 8 * 2048;
 
+//---------------------------------------------------------------------------------------------------------------------
+// Name: FastParse
+// Desc:
+//---------------------------------------------------------------------------------------------------------------------
+void FastParse(const char* str, DateTimePricePair* dateTimePricePair) {
+	char temp[32]; 
+
+	uint16_t strLen = strlen(str); 
+	uint8_t iStr = 0; 
+	uint8_t i = 0; 
+	 
+	const char delim[] = "-- ::.";
+
+	for (uint8_t delimIndex = 0; delimIndex < sizeof(delim); delimIndex++) {
+		while(str[iStr] != delim[delimIndex] && iStr < strLen) {
+			temp[i] = str[iStr]; 
+			i++; 
+			iStr++; 
+		}
+		
+		temp[i] = 0; // set delim character to a terminator so the string ends
+		iStr++; // move iStr past the delimiting character
+		i = 0; 
+		
+		if (delimIndex == 0) {
+			dateTimePricePair->year = atoi(temp);
+		} else if (delimIndex == 1) {
+			dateTimePricePair->month = atoi(temp);
+		} else if (delimIndex == 2) {
+			dateTimePricePair->day = atoi(temp);
+		} else if (delimIndex == 3) {
+			dateTimePricePair->hour = atoi(temp);
+		} else if (delimIndex == 4) {
+			dateTimePricePair->minute = atoi(temp);
+		} else if (delimIndex == 5) {
+			dateTimePricePair->second = atoi(temp);
+		} else if (delimIndex == 6) {
+			dateTimePricePair->millisec = atoi(temp);
+		}
+	}
+}
 
 //----------------------------------------------------------------------------------------------------------
 // Name: StreamReadLineByLine
@@ -72,7 +118,7 @@ void StreamReadLineByLine()
 				unsigned int minute;
 				unsigned int second;
 				unsigned int millisec;
-#ifdef __WIN32
+#ifdef _MSC_VER
 				sscanf_s(cell.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec);
 #else
 				sscanf(cell.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec);
@@ -147,28 +193,7 @@ void StreamReadBlock() {
 				buffer[i] = 0; 
 
 				if (headerCounter == 3) {
-
-					unsigned int year;
-					unsigned int month;
-					unsigned int day;
-					unsigned int hour;
-					unsigned int minute;
-					unsigned int second;
-					unsigned int millisec;
-
-					// datetime
-#ifdef __WIN32
-					sscanf_s(&buffer[lastCommaIndex], "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec); 
-#else
-					sscanf(&buffer[lastCommaIndex], "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec); 
-#endif
-					dateTimePricePair.year = year;
-					dateTimePricePair.month = month;
-					dateTimePricePair.day = day;
-					dateTimePricePair.hour = hour;
-					dateTimePricePair.minute = minute;
-					dateTimePricePair.second = second;
-					dateTimePricePair.millisec = millisec;
+					FastParse(&buffer[lastCommaIndex], &dateTimePricePair); 
 
 				} else if (headerCounter == 4) {
 
@@ -220,6 +245,8 @@ void StreamReadBlock() {
 
 	filestream.close();
 }
+
+
 
 //---------------------------------------------------------------------------------------------------------------------
 // Name: main
